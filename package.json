@@ -1,0 +1,106 @@
+{
+  "name": "thief-write",
+  "displayName": "Thief Write - 隐写盲打",
+  "description": "一个用于在公共场合盲打私人内容的 VS Code 扩展。输入的真实内容不会显示在编辑器里，而是保存到自己选择的文件中，屏幕上只显示一份伪装文本。",
+  "version": "0.0.1",
+  "publisher": "ZnPdCo",
+  "license": "MIT",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/znpdco/thief-write"
+  },
+  "keywords": [
+    "隐写",
+    "盲打",
+    "隐私",
+    "stealth",
+    "writing"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "thief.openLast",
+        "title": "Thief Write: 打开上次的文件"
+      },
+      {
+        "command": "thief.openFile",
+        "title": "Thief Write: 选择文件并开始偷偷输入"
+      },
+      {
+        "command": "thief.toggle",
+        "title": "Thief Write: 在伪编辑器与原文之间切换"
+      },
+      {
+        "command": "thief.chooseDecoySource",
+        "title": "Thief Write: 选择伪装文本源文件"
+      },
+      {
+        "command": "thief.clearDecoySource",
+        "title": "Thief Write: 清除伪装文本源，回到占位符显示"
+      },
+      {
+        "command": "thief.toggleRecent",
+        "title": "Thief Write: 切换右下角最近字符提示"
+      },
+      {
+        "command": "thief.stop",
+        "title": "Thief Write: 停止并关闭伪编辑器"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "thief.openLast",
+        "key": "ctrl+alt+w"
+      },
+      {
+        "command": "thief.openFile",
+        "key": "ctrl+alt+o"
+      },
+      {
+        "command": "thief.toggle",
+        "key": "ctrl+alt+t"
+      },
+      {
+        "command": "thief.toggleRecent",
+        "key": "ctrl+alt+r"
+      }
+    ],
+    "configuration": {
+      "title": "Thief Write",
+      "properties": {
+        "thiefWrite.recentIndicator": {
+          "type": "boolean",
+          "default": true,
+          "description": "在伪编辑器右下角显示最近的两位真实字符（x|y）作为辅助。"
+        },
+        "thiefWrite.decoySourcePath": {
+          "type": "string",
+          "default": "",
+          "description": "伪装文本源文件的绝对路径。留空时按真实字符宽度打码显示。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node test/run.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^5.4.0"
+  }
+}
