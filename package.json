@@ -2,7 +2,7 @@
   "name": "thief-write",
   "displayName": "Thief Write - 隐写盲打",
   "description": "一个用于在公共场合盲打私人内容的 VS Code 扩展，输入的真实内容不会显示在编辑器里。",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "ZnPdCo",
   "license": "MIT",
   "icon": "icon.png",
