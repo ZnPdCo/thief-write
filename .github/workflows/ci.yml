@@ -8,7 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,13 +24,21 @@ jobs:
         run: npm ci
 
       - name: Compile
+        run: npm run compile
+
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm test
+
+      - name: Test (macOS/Windows)
+        if: runner.os != 'Linux'
         run: npm test
 
-      - name: Verify packaging (manifest + icon)
+      - name: Verify packaging
         run: npx vsce package --out thief-write-ci.vsix
 
       - uses: actions/upload-artifact@v4
         with:
-          name: thief-write-vsix
+          name: thief-write-${{ matrix.os }}
           path: thief-write-ci.vsix
           if-no-files-found: error
