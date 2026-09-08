@@ -1,0 +1,11 @@
+{
+  "name": "Stealth Text",
+  "scopeName": "source.stealth-text",
+  "fileTypes": [],
+  "patterns": [
+    {
+      "name": "meta.thiefwrite.hidden",
+      "match": "."
+    }
+  ]
+}

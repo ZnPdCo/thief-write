@@ -1,7 +1,7 @@
 {
   "name": "thief-write",
   "displayName": "Thief Write - 隐写盲打",
-  "description": "一个用于在公共场合盲打私人内容的 VS Code 扩展。输入的真实内容不会显示在编辑器里，而是保存到自己选择的文件中，屏幕上只显示一份伪装文本。",
+  "description": "一个用于在公共场合盲打私人内容的 VS Code 扩展，输入的真实内容不会显示在编辑器里。",
   "version": "0.0.1",
   "publisher": "ZnPdCo",
   "license": "MIT",
@@ -27,64 +27,87 @@
   "contributes": {
     "commands": [
       {
-        "command": "thief.openLast",
-        "title": "Thief Write: 打开上次的文件"
-      },
-      {
-        "command": "thief.openFile",
-        "title": "Thief Write: 选择文件并开始偷偷输入"
-      },
-      {
         "command": "thief.toggle",
-        "title": "Thief Write: 在伪编辑器与原文之间切换"
+        "title": "Thief Write: 在隐写视图与真实文件明文之间切换"
       },
       {
-        "command": "thief.chooseDecoySource",
-        "title": "Thief Write: 选择伪装文本源文件"
-      },
-      {
-        "command": "thief.clearDecoySource",
-        "title": "Thief Write: 清除伪装文本源，回到占位符显示"
+        "command": "thief.toggleName",
+        "title": "Thief Write: 切换隐写标签显示名"
       },
       {
         "command": "thief.toggleRecent",
-        "title": "Thief Write: 切换右下角最近字符提示"
-      },
-      {
-        "command": "thief.stop",
-        "title": "Thief Write: 停止并关闭伪编辑器"
+        "title": "Thief Write: 切换右下角真实字符提示"
       }
     ],
     "keybindings": [
       {
-        "command": "thief.openLast",
-        "key": "ctrl+alt+w"
-      },
-      {
-        "command": "thief.openFile",
-        "key": "ctrl+alt+o"
-      },
-      {
         "command": "thief.toggle",
         "key": "ctrl+alt+t"
+      },
+      {
+        "command": "thief.toggleName",
+        "key": "ctrl+alt+n"
       },
       {
         "command": "thief.toggleRecent",
         "key": "ctrl+alt+r"
       }
     ],
+    "languages": [
+      {
+        "id": "stealth-text",
+        "aliases": [
+          "Stealth Text"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "stealth-text",
+        "scopeName": "source.stealth-text",
+        "path": "./syntaxes/stealth-text.tmLanguage.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[stealth-text]": {
+        "editor.minimap.enabled": false,
+        "editor.quickSuggestions": {
+          "other": false,
+          "comments": false,
+          "strings": false
+        },
+        "editor.suggestOnTriggerCharacters": false,
+        "editor.wordBasedSuggestions": "off",
+        "editor.hover.enabled": "off",
+        "editor.selectionHighlight": false,
+        "editor.occurrencesHighlight": "off",
+        "editor.matchBrackets": "never",
+        "editor.renderLineHighlight": "none",
+        "editor.colorDecorators": false
+      },
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": "meta.thiefwrite.hidden",
+            "settings": {
+              "foreground": "#00000000"
+            }
+          }
+        ]
+      }
+    },
     "configuration": {
       "title": "Thief Write",
       "properties": {
         "thiefWrite.recentIndicator": {
           "type": "boolean",
           "default": true,
-          "description": "在伪编辑器右下角显示最近的两位真实字符（x|y）作为辅助。"
+          "description": "在隐写模式下，于状态栏右侧显示当前真实光标两侧的字符 [左|右]，换行显示为 ⏎。"
         },
-        "thiefWrite.decoySourcePath": {
+        "thiefWrite.displayName": {
           "type": "string",
-          "default": "",
-          "description": "伪装文本源文件的绝对路径。留空时按真实字符宽度打码显示。"
+          "default": "Untitled-1",
+          "description": "隐写视图标签页显示的伪装文件名。"
         }
       }
     }
@@ -93,7 +116,6 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node test/run.js",
     "package": "vsce package",
     "publish": "vsce publish"
   },

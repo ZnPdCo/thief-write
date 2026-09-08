@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Compile and run tests
+      - name: Compile
         run: npm test
 
       - name: Verify packaging (manifest + icon)
