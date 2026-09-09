@@ -696,14 +696,19 @@ suite('Extension Test Suite', () => {
         await vscode.commands.executeCommand('thief.toggle');
         await sleep(500);
 
-        // 尝试重新打开同一 stealth URI（应失败，因为已 unmap）
-        try {
-            await vscode.workspace.openTextDocument(vscode.Uri.parse(fakeUriStr));
-            // 如果没有抛出错误，检查文档是否仍可读取
-            assert.fail('unmap 后不应能打开同一 stealth URI');
-        } catch {
-            // 预期行为：FileNotFound 或类似错误
-            assert.ok(true, 'unmap 后打开失败是预期行为');
-        }
+        // 退出隐写后，活动编辑器应回到真实文件
+        const ed = vscode.window.activeTextEditor;
+        assert.ok(ed, '应有活动编辑器');
+        assert.strictEqual(ed!.document.uri.scheme, 'file');
+
+        // stealth 文档标签应已关闭
+        const stealthTab = vscode.window.tabGroups.all
+            .flatMap((g) => g.tabs)
+            .find(
+                (t) =>
+                    t.input instanceof vscode.TabInputText &&
+                    t.input.uri.toString() === fakeUriStr
+            );
+        assert.strictEqual(stealthTab, undefined, 'stealth 标签应已关闭');
     });
 });

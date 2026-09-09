@@ -39,18 +39,6 @@ export class StealthEditor {
         }
     }
 
-    async closeAllStealthDocs(): Promise<void> {
-        for (const doc of [...vscode.workspace.textDocuments]) {
-            if (doc.uri.scheme === 'stealth') {
-                try {
-                    await this.closeDoc(doc);
-                } catch {
-                    // 单个文档关闭失败不中断批量操作
-                }
-            }
-        }
-    }
-
     /** 打开（或唤起）stealth 文档，支持传递恢复状态（光标与视口） */
     async openStealth(
         realRaw: string,
@@ -64,8 +52,9 @@ export class StealthEditor {
         const doc = await vscode.workspace.openTextDocument(fakeUri);
         await vscode.languages.setTextDocumentLanguage(doc, 'stealth-text');
 
+        // preview: true 让新文档替换当前 tab，避免闪烁和窗口缩放
         const editor = await vscode.window.showTextDocument(doc, {
-            preview: false,
+            preview: true,
             preserveFocus: false,
         });
 
@@ -89,19 +78,19 @@ export class StealthEditor {
 
         await saveDocIfDirty(sourceDoc);
 
-        // 先记录状态（此时编辑器仍指向源文件）
-        const curEditor = vscode.window.activeTextEditor;
-        const visibleRange = curEditor?.visibleRanges[0];
-        const sel = selection || curEditor?.selection || new vscode.Selection(0, 0, 0, 0);
+        // 先记录源文件的编辑器状态（此时源文件仍是活动编辑器）
+        const sourceEditor = vscode.window.activeTextEditor;
+        const visibleRange = sourceEditor?.visibleRanges[0];
+        const sel = selection || sourceEditor?.selection || new vscode.Selection(0, 0, 0, 0);
 
-        // 先关旧标签，再开新标签，避免两个标签同时闪烁
-        await this.closeDoc(sourceDoc);
-        await this.closeAllStealthDocs();
-
+        // preview: true 直接替换当前 tab，不闪烁
         await this.openStealth(realPath, path.basename(realPath), {
             selection: sel,
             visibleRange,
         });
+
+        // 新文档已替换旧 tab，再关掉源文件标签
+        await this.closeDoc(sourceDoc);
     }
 
     /** 退出隐写：隐写文档 -> 回到真实明文文档 */
@@ -119,14 +108,11 @@ export class StealthEditor {
         const curSelection = stealthEd?.selection;
         const curVisibleRange = stealthEd?.visibleRanges[0];
 
-        // 先关旧标签，再开新标签，避免两个标签同时闪烁
-        await this.closeDoc(stealthDoc);
-        this.provider.unmap(stealthDoc.uri);
-
+        // preview: true 直接替换当前 tab
         const realUri = vscode.Uri.file(realPath);
         const pdoc = await vscode.workspace.openTextDocument(realUri);
         const editor = await vscode.window.showTextDocument(pdoc, {
-            preview: false,
+            preview: true,
             preserveFocus: false,
         });
 
@@ -136,6 +122,10 @@ export class StealthEditor {
         if (curVisibleRange) {
             editor.revealRange(curVisibleRange, vscode.TextEditorRevealType.AtTop);
         }
+
+        // 新文档已替换旧 tab，再关掉 stealth 标签
+        await this.closeDoc(stealthDoc);
+        this.provider.unmap(stealthDoc.uri);
     }
 
     /** 切换标签显示名，保持当前光标及视口位置不变 */
@@ -156,9 +146,12 @@ export class StealthEditor {
             : undefined;
 
         await saveDocIfDirty(current);
-        await this.closeDoc(current);
         this.provider.unmap(current.uri);
 
+        // preview: true 直接替换当前 tab
         await this.openStealth(realPath, newDisplay, state);
+
+        // 新文档已替换旧 tab，再关掉旧 stealth 标签
+        await this.closeDoc(current);
     }
 }
